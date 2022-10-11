@@ -150,8 +150,8 @@ tar -xf ocr_en.tar
 # An alternative to using "python3 -m tvm.driver.tvmc" is to call
 # "tvmc" directly once TVM has been pip installed.
 python3 -m tvm.driver.tvmc compile --target=cmsis-nn,c \
-    --target-cmsis-nn-mcpu=cortex-m55 \
-    --target-c-mcpu=cortex-m55 \
+    --target-cmsis-nn-mcpu=cortex-m33 \
+    --target-c-mcpu=cortex-m33 \
     --runtime=crt \
     --executor=aot \
     --executor-aot-interface-api=c \
@@ -167,18 +167,4 @@ python3 -m tvm.driver.tvmc compile --target=cmsis-nn,c \
     --output=rec.tar
 tar -xf rec.tar
 
-# Create C header files
-cd ..
-python3 ./convert_image.py imgs_words_en/word_116.png
 
-# Build demo executable
-cd ${script_dir}
-echo ${script_dir}
-make
-
-# Run demo executable on the AVH
-$Platform -C cpu0.CFGDTCMSZ=15 \
--C cpu0.CFGITCMSZ=15 -C mps3_board.uart0.out_file=\"-\" -C mps3_board.uart0.shutdown_tag=\"EXITTHESIM\" \
--C mps3_board.visualisation.disable-visualisation=1 -C mps3_board.telnetterminal0.start_telnet=0 \
--C mps3_board.telnetterminal1.start_telnet=0 -C mps3_board.telnetterminal2.start_telnet=0 -C mps3_board.telnetterminal5.start_telnet=0 \
-./build/demo --stat
