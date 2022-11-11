@@ -141,10 +141,9 @@ make cleanall
 mkdir -p build
 cd build
 
-# Get PaddlePaddle inference model
-echo -e "\e[36mDownload PaddlePaddle inference model\e[0m"
-wget https://paddleocr.bj.bcebos.com/tvm/ocr_en.tar
-tar -xf ocr_en.tar
+# Get kws model
+model_url='https://github.com/tensorflow/tflite-micro/raw/main/tensorflow/lite/micro/models/keyword_scrambled_8bit.tflite'
+curl --retry 64 -sSL ${model_url} -o ./keyword_scrambled_8bit.tflite
 
 # Compile model for Arm(R) Cortex(R)-M55 CPU and CMSIS-NN
 # An alternative to using "python3 -m tvm.driver.tvmc" is to call
@@ -159,12 +158,8 @@ python3 -m tvm.driver.tvmc compile --target=cmsis-nn,c \
     --pass-config tir.usmp.enable=1 \
     --pass-config tir.usmp.algorithm=hill_climb \
     --pass-config tir.disable_storage_rewrite=1 \
-    --pass-config tir.disable_vectorize=1 ocr_en/inference.pdmodel \
+    --pass-config tir.disable_vectorize=1 ./keyword_scrambled_8bit.tflite \
     --output-format=mlf \
-    --model-format=paddle \
-    --module-name=rec \
-    --input-shapes x:[1,3,32,320] \
-    --output=rec.tar
-tar -xf rec.tar
-
+    --module-name=kws
+tar -xf module.tar
 
